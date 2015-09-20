@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Lunch Split</title>
+		<meta name="viewport" content="width=device-width"/>
+		<link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.css">
+		<style>
+		input {
+			margin: 0px;
+    	}
+		div {
+			margin: 0px;
+    	}
+		p {
+			font-size:small;
+			margin: 0px;
+    	}
+    	
+    	label {
+			font-size:small;
+    	}
+		.custom-banner {
+		    height:20px;
+		    background-color:#daf7fb ;
+		    border-color:#a75252 ;
+		    color:#333333 ;
+		    text-shadow:0  1  0  #f3f3f3 ;
+		    font-weight:bold;
+	    	margin-left: 5px;
+		}
+		.error{
+ 		   display:none;
+ 		   font-size:small;
+ 		   color: red;
+    	   margin-left: 5px;
+		}
+		.ui-page-theme-f {
+		    background-color:#daf7fb ;
+		    border-color:#a75252 ;
+		    color:#333333 ;
+		    text-shadow:0  1  0  #f3f3f3 ;
+		    font-weight:bold;
+		}
+		.ui-bar-f {
+		    background-color:#389ea3 ;
+		    border-color:#a75252 ;
+		    color:#fafeff ;
+		    text-shadow:0  1  0  #eeeeee ;
+		    font-weight:bold;
+		}
+		.ui-body-f {
+		    background-color:#daf7fb ;
+		    border-color:#a75252 ;
+		    color:#000000 ;
+		    text-shadow:0 1 0 #f5f5f5 ;
+		    font-weight:bold;
+		}
+		.ui-btn-f {
+		    background-color:#47b2b8 ;
+		    border-color:#a75252 ;
+		    color:#fafeff ;
+		    text-shadow:0  1  0  #f3f3f3 ;
+		    font-weight:bold;
+		}
+		textarea {
+   			font-family: inherit;
+   			font-size: inherit;
+   			background-color:inherit ;
+		    border-color:inherit ;
+		    color:inherit ;
+		    text-shadow:inherit ;
+		    font-weight:inherit;
+		}
+		</style>
+		<script src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
+		<script src="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.js"></script>
+		<script type="text/javascript" src="cordova.js"></script>
+		<script>
+			$(document).on('pagecreate',function() {
+				//document.getElementById("venueDate").defaultValue ='2014-02-09'
+				document.getElementById("venueDate").valueAsDate = new Date();
+				//$("input[type='number']").each(function(i, el) { 
+				//    el.type = "text";
+				//    el.onfocus = function(){this.type="number"; this.trigger("click");};
+				//    el.onblur = function(){this.type="text";};
+				//});
+				function showAmoutPerFriend(){
+					var amt=$('#amount').val();
+				    var totalFriends=$('#totalFriends').val();
+				    if(amt>0 && totalFriends>0){
+				    	var amtpf = amt/totalFriends;
+						document.getElementById("display").innerHTML = "Amount per friend : <b>" + amtpf.toFixed(2) + "<b>";
+				    }
+				}
+				$('#amount').on('input', function() {
+				   showAmoutPerFriend();
+				});
+				$('#totalFriends').on('input', function(){
+				   showAmoutPerFriend();
+				});
+				function sendNotification(notificationMethod){
+					var inputAll ="";
+					var errors=false;
+					var venue = $('#venue').val();
+					var venueDate = $('#venueDate').val();
+					var amount = $('#amount').val();
+					var totalFriends = $('#totalFriends').val();
+					var paypalAccount = $('#paypalAccount').val();
+					var details = $('#details').val();
+					var selectedDate="";
+					var selectedDateString = "";
+					if(venue.length>0){
+						inputAll="Title : "+ venue+  "\n";
+					}else{
+						 $("#venueSpan").show();
+						 errors=true;
+					}
+					if(venueDate.length>0){
+						selectedDate=new Date(venueDate);
+						selectedDateString = (selectedDate.getMonth()+1) + "/" + (selectedDate.getDate()+1) + "/" + selectedDate.getFullYear();
+						inputAll=inputAll + "Date : " + selectedDateString+  "\n";
+					}else{
+						 $("#venueDateSpan").show();
+						 errors=true;
+					}
+					if(amount.length>0 && (amount>0)){
+						inputAll=inputAll + "Total Amount : " + amount +  "\n";
+					}else{
+						 $("#amountSpan").show();
+						 errors=true;
+					}
+					if(totalFriends.length>0 && (totalFriends>0)){
+						inputAll=inputAll + "Total Friends : " + totalFriends+  "\n";
+					}else{
+						 $("#totalFriendsSpan").show();
+						 errors=true;
+					}
+					if(paypalAccount.length>0){
+						inputAll=inputAll + "PayPal Account : " + paypalAccount+  "\n";
+					}
+					if(details>0){
+						inputAll=inputAll + "Message : " + details+  "\n";
+					}
+		   			if(!errors){		   				
+				    	var amtpf = amount/totalFriends;
+						inputAll=inputAll +"Amount per Friend : " + amtpf.toFixed(2) +  "\n";						
+						if(notificationMethod=="sms")
+							location.href = "sms:?subject="+ venue + "  "+ selectedDateString +"&body="+encodeURIComponent(inputAll);							
+						else
+							location.href = "mailto:?subject="+ venue + "  "+ selectedDateString +"&body="+encodeURIComponent(inputAll);	
+		   			}
+				}
+				$("#smsButton").click(function(e) {
+					sendNotification("sms");
+				});
+				$("#mailButton").click(function(e) {
+					sendNotification("email");
+				});
+				$("#clearAll").click(function(e) {
+						 $("#venueSpan").hide();
+						 $("#venueDateSpan").hide();
+						 $("#amountSpan").hide();
+						 $("#totalFriendsSpan").hide();
+						 document.getElementById("venueDate").valueAsDate = new Date();
+ 						 $('#venue').val("");
+						 $('#amount').val("");
+						 $('#totalFriends').val("");
+						 $('#paypalAccount').val("");
+						 $('#details').val("");
+				});
+			});			
+		</script>
+		<script>
+        var enabledAdMob = true; // easily enable/disable AdMob
+        var admobid = {};
+        if( /(android)/i.test(navigator.userAgent) )
+        {
+            admobid = { // for Android
+                banner: 'ca-app-pub-1016555809468493/1720015764', // or DFP format "/6253334/dfp_example_ad"
+                interstitial: 'ca-app-pub-xxx/yyy'
+            };
+        }
+        else if(/(ipod|iphone|ipad)/i.test(navigator.userAgent))
+        {
+            admobid = { // for iOS
+                banner: 'ca-app-pub-1016555809468493/1720015764', // or DFP format "/6253334/dfp_example_ad"
+                interstitial: 'ca-app-pub-xxx/kkk'
+            };
+        }
+        else
+        {
+            admobid = { // for Windows Phone
+                banner: 'ca-app-pub-1016555809468493/1720015764', // or DFP format "/6253334/dfp_example_ad"
+                interstitial: 'ca-app-pub-xxx/kkk'
+            };
+        }
+        function initApp()
+        {
+            if (enabledAdMob)
+            {
+                AdMob.createBanner({
+                    adId: admobid.banner,
+                    position: AdMob.AD_POSITION.TOP_CENTER,
+                    adSize: 'SMART_BANNER',
+				    height: 20, // valid when set adSize 'CUSTOM'
+					overlap:true,
+                    autoShow: true
+                });
+            }
+        }
+		document.addEventListener('deviceready', initApp, false);
+    </script>
+	<script>
+	    	$(document).ready(function() {
+					//document.getElementById("venueDate").valueAsDate = new Date();
+			});
+	</script>
+	</head>
+	<body>
+		<!-- This is the first page -->
+		<div id="firstpage" data-role="page" data-theme="f">
+			  <div class="custom-banner" data-theme="f"><h1></h1></div>
+			  <div data-role="header" data-theme="f">
+			    <h1>Share Expenses</h1>
+			  </div>
+			<div class="ui-content" >
+						<label for="venue"><p><b>Venue / Title</b> <span class="error" id="venueSpan">Please enter Venue / Title</span></p></label>
+						<input type="text"  id="venue" value="" placeholder="Venue / Title" data-mini="true" required/>						
+						<label for="venueDate"><p><b>Date </b><span class="error" id="venueDateSpan">Please enter the valid date</span></p></label>
+						<input type="date"  id="venueDate" placeholder="Select Date"  data-mini="true" required min="2015-01-01"/>
+						<label for="amount"><p><b>Amount</b> <span class="error" id="amountSpan">Please enter the amount</span></p></label>
+						<input type="number" id="amount" value="" placeholder="Amount to split" data-mini="true" required/>
+						<label for="totalFriends"><p><b>Total Friends</b>	<span class="error" id="totalFriendsSpan">Please enter the total friends</span></p></label>
+						<input type="number" id="totalFriends" value="" placeholder="Total # Friends" data-mini="true" required/>
+						<label for="paypalAccount"><p><b>PayPal Account</b></p></label>
+						<input type="text"  id="paypalAccount" value="" placeholder="PayPal Account (optional)" data-mini="true" />
+						<label for="details"><p><b>Message to friends</b></p></label>
+						<textarea  id="details" placeholder="message to friends (optional)" data-mini="true"></textarea>
+						<p id="display"></p>
+			    <div data-role="controlgroup" data-type="horizontal">
+			        <a href="#" id="clearAll" class="ui-btn ui-icon-refresh ui-btn-icon-notext ui-shadow-icon ui-btn-f">Clear All</a>
+			        <a href="#" id="mailButton" class="ui-btn ui-icon-mail ui-btn-icon-notext ui-shadow-icon ui-btn-f">A</a>
+			        <a href="#" id="smsButton" class="ui-btn ui-icon-comment ui-btn-icon-notext ui-shadow-icon ui-btn-f">B</a>
+			    </div>
+			 <!--    <div data-role="controlgroup" data-type="horizontal">
+			        <a href="#" id="clearAll" class="ui-btn ui-shadow-icon ui-btn-f">Clear All</a>
+			    </div>	 -->	
+		    </div>
+		</div>
+	</body>
+</html>
