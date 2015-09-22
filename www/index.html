@@ -77,13 +77,10 @@
 		<script type="text/javascript" src="cordova.js"></script>
 		<script>
 			$(document).on('pagecreate',function() {
-				//document.getElementById("venueDate").defaultValue ='2014-02-09'
 				document.getElementById("venueDate").valueAsDate = new Date();
-				//$("input[type='number']").each(function(i, el) { 
-				//    el.type = "text";
-				//    el.onfocus = function(){this.type="number"; this.trigger("click");};
-				//    el.onblur = function(){this.type="text";};
-				//});
+			    if ( localStorage.getItem('com.ss.evenshareexpense') ){
+				    $('#paypalAccount').val(localStorage.getItem('com.ss.evenshareexpense'))
+			    }
 				function showAmoutPerFriend(){
 					var amt=$('#amount').val();
 				    var totalFriends=$('#totalFriends').val();
@@ -143,7 +140,10 @@
 					}
 		   			if(!errors){		   				
 				    	var amtpf = amount/totalFriends;
-						inputAll=inputAll +"Amount per Friend : " + amtpf.toFixed(2) +  "\n";						
+						inputAll=inputAll +"Amount per Friend : " + amtpf.toFixed(2) +  "\n";
+						if(paypalAccount.length>0) {
+			    			localStorage.setItem("com.ss.evenshareexpense", paypalAccount);
+			    		}						
 						if(notificationMethod=="sms")
 							location.href = "sms:?subject="+ venue + "  "+ selectedDateString +"&body="+encodeURIComponent(inputAll);							
 						else
@@ -165,7 +165,11 @@
  						 $('#venue').val("");
 						 $('#amount').val("");
 						 $('#totalFriends').val("");
-						 $('#paypalAccount').val("");
+						 if ( localStorage.getItem('com.ss.evenshareexpense') ){
+				    		$('#paypalAccount').val(localStorage.getItem('com.ss.evenshareexpense'))
+		   			     }else{
+		   			     	 $('#paypalAccount').val("");
+		   			     }
 						 $('#details').val("");
 				});
 			});			
@@ -232,10 +236,10 @@
 						<input type="number" id="amount" value="" placeholder="Amount to split" data-mini="true" required/>
 						<label for="totalFriends"><p><b>Total Friends</b>	<span class="error" id="totalFriendsSpan">Please enter the total friends</span></p></label>
 						<input type="number" id="totalFriends" value="" placeholder="Total # Friends" data-mini="true" required/>
-						<label for="paypalAccount"><p><b>PayPal Account</b></p></label>
-						<input type="text"  id="paypalAccount" value="" placeholder="PayPal Account (optional)" data-mini="true" />
+						<label for="paypalAccount"><p><b>PayPal Account or PayPal.Me link</b></p></label>
+						<input type="text"  id="paypalAccount" value="" placeholder="PayPal Account or PayPal.Me link (optional)" data-mini="true" />
 						<label for="details"><p><b>Message to friends</b></p></label>
-						<textarea  id="details" placeholder="message to friends (optional)" data-mini="true"></textarea>
+						<textarea  id="details" placeholder="Message to friends (optional)" data-mini="true"></textarea>
 						<p id="display"></p>
 			    <div data-role="controlgroup" data-type="horizontal">
 			        <a href="#" id="clearAll" class="ui-btn ui-icon-refresh ui-btn-icon-notext ui-shadow-icon ui-btn-f">Clear All</a>
